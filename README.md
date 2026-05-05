@@ -1,4 +1,4 @@
-# QR Code Generator - DataSWCA
+# QR Code Generator - datas wca
 
 Générateur de QR Codes personnalisés avec logo pour la Banque mondiale.
 
