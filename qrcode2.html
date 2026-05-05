@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+  <html lang="fr">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>QR Code Generator — DataSWCA</title>
+      <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+      <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+
+          body {
+              font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+              background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+              min-height: 100vh;
+              color: #e0e0e0;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 30px 20px;
+          }
+
+          h1 {
+              font-size: 2rem;
+              margin-bottom: 6px;
+              background: linear-gradient(90deg, #e94560, #0f3460);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+          }
+
+          .subtitle {
+              color: #888;
+              margin-bottom: 30px;
+              font-size: 0.95rem;
+          }
+
+          .container {
+              display: flex;
+              gap: 40px;
+              flex-wrap: wrap;
+              justify-content: center;
+              max-width: 1100px;
+              width: 100%;
+          }
+
+          .panel {
+              background: rgba(255,255,255,0.05);
+              backdrop-filter: blur(20px);
+              border: 1px solid rgba(255,255,255,0.08);
+              border-radius: 20px;
+              padding: 30px;
+              flex: 1;
+              min-width: 300px;
+              max-width: 420px;
+          }
+
+          .panel h2 {
+              font-size: 1.2rem;
+              margin-bottom: 20px;
+              color: #e94560;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+          }
+
+          .field {
+              margin-bottom: 16px;
+          }
+
+          .field label {
+              display: block;
+              margin-bottom: 6px;
+              font-size: 0.85rem;
+              color: #aaa;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+          }
+
+          .field input[type="text"],
+          .field input[type="tel"],
+          .field input[type="email"],
+          .field textarea {
+              width: 100%;
+              padding: 10px 14px;
+              border: 1px solid rgba(255,255,255,0.1);
+              border-radius: 10px;
+              background: rgba(255,255,255,0.06);
+              color: #fff;
+              font-size: 0.95rem;
+              outline: none;
+              transition: border-color 0.3s;
+          }
+
+          .field input:focus,
+          .field textarea:focus {
+              border-color: #e94560;
+          }
+
+          .field textarea {
+              resize: vertical;
+              min-height: 60px;
+          }
+
+          .color-row {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-bottom: 14px;
+          }
+
+          .color-row label {
+              font-size: 0.85rem;
+              color: #aaa;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              flex: 1;
+          }
+
+          .color-row input[type="color"] {
+              width: 42px;
+              height: 34px;
+              border: 2px solid rgba(255,255,255,0.15);
+              border-radius: 8px;
+              cursor: pointer;
+              background: transparent;
+              padding: 2px;
+          }
+
+          .slider-row {
+              margin-bottom: 16px;
+          }
+
+          .slider-row label {
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.85rem;
+              color: #aaa;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              margin-bottom: 6px;
+          }
+
+          .slider-row label span {
+              color: #e94560;
+              font-weight: 600;
+          }
+
+          input[type="range"] {
+              width: 100%;
+              accent-color: #e94560;
+              height: 6px;
+              -webkit-appearance: none;
+              background: rgba(255,255,255,0.1);
+              border-radius: 3px;
+              outline: none;
+          }
+
+          input[type="range"]::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              width: 18px;
+              height: 18px;
+              border-radius: 50%;
+              background: #e94560;
+              cursor: pointer;
+              border: 2px solid #fff;
+          }
+
+          select {
+              width: 100%;
+              padding: 10px 14px;
+              border: 1px solid rgba(255,255,255,0.1);
+              border-radius: 10px;
+              background: rgba(255,255,255,0.06);
+              color: #fff;
+              font-size: 0.95rem;
+              outline: none;
+              cursor: pointer;
+          }
+
+          select option {
+              background: #1a1a2e;
+              color: #fff;
+          }
+
+          .btn-row {
+              display: flex;
+              gap: 12px;
+              margin-top: 24px;
+          }
+
+          .btn {
+              flex: 1;
+              padding: 14px 20px;
+              border: none;
+              border-radius: 12px;
+              font-size: 1rem;
+              font-weight: 600;
+              cursor: pointer;
+              transition: transform 0.2s, box-shadow 0.2s;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+          }
+
+          .btn:active { transform: scale(0.96); }
+
+          .btn-primary {
+              background: linear-gradient(135deg, #e94560, #c23152);
+              color: #fff;
+              box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+          }
+
+          .btn-primary:hover {
+              box-shadow: 0 6px 30px rgba(233,69,96,0.5);
+              transform: translateY(-1px);
+          }
+
+          .btn-secondary {
+              background: rgba(255,255,255,0.08);
+              color: #e0e0e0;
+              border: 1px solid rgba(255,255,255,0.12);
+          }
+
+          .btn-secondary:hover {
+              background: rgba(255,255,255,0.14);
+          }
+
+          #qrcodeDiv {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 300px;
+              background: rgba(0,0,0,0.2);
+              border-radius: 20px;
+              border: 2px dashed rgba(255,255,255,0.08);
+              padding: 20px;
+              position: relative;
+          }
+
+          #qrcodeDiv canvas {
+              border-radius: 16px;
+              box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+          }
+
+          .placeholder-text {
+              color: #555;
+              font-size: 1rem;
+              text-align: center;
+          }
+
+          .logo-preview {
+              margin-top: 16px;
+              text-align: center;
+          }
+
+          .logo-preview img,
+          .logo-preview svg {
+              width: 60px;
+              height: 60px;
+              border-radius: 12px;
+          }
+
+          .vcard-toggle {
+              margin-bottom: 20px;
+          }
+
+          .vcard-toggle summary {
+              cursor: pointer;
+              color: #e94560;
+              font-weight: 600;
+              font-size: 0.9rem;
+              padding: 8px 0;
+              user-select: none;
+          }
+
+          .vcard-fields {
+              display: none;
+          }
+
+          .vcard-fields.open {
+              display: block;
+          }
+
+          @media (max-width: 700px) {
+              .container { flex-direction: column; align-items: center; }
+              .panel { max-width: 100%; min-width: auto; width: 100%; }
+              h1 { font-size: 1.5rem; }
+          }
+      </style>
+  </head>
+  <body>
+
+  <h1>🔲 QR Code Generator</h1>
+  <p class="subtitle">Générez des QR codes personnalisés avec votre logo</p>
+
+  <div class="container">
+
+      <!-- PANEL GAUCHE : Contrôles -->
+      <div class="panel">
+          <h2>⚙️ Personnalisation</h2>
+
+          <div class="slider-row">
+              <label>Taille <span id="sizeValue">800</span>px</label>
+              <input type="range" id="sizeSlider" min="300" max="1500" value="800" step="50">
+            
+          </div>
+
+          <div class="slider-row">
+              <label>Arrondi <span id="roundnessValue">8</span></label>
+              <input type="range" id="roundnessSlider" min="0" max="25" value="8">
+          </div>
+
+          <div class="field">
+              <label>Style des points</label>
+              <select id="dotStyleSelect">
+                  <option value="rounded">▢ Arrondi</option>
+                  <option value="soft">● Doux (cercle)</option>
+                  <option value="square">■ Carré</option>
+              </select>
+          </div>
+
+<div class="color-row">
+               <label>Points</label>
+               <input type="color" id="dotColorInput" value="#003F87">
+           </div>
+
+           <div class="color-row">
+               <label>Corners</label>
+               <input type="color" id="cornerColorInput" value="#E2007A">
+           </div>
+
+<div class="color-row">
+                <label>Fond</label>
+                <input type="color" id="bgColorInput" value="#FFFFFF">
+            </div>
+
+           <div class="slider-row">
+               <label>Taille logo <span id="logoSizeValue">0.18</span></label>
+               <input type="range" id="logoSizeSlider" min="0.1" max="0.3" value="0.18" step="0.01">
+           </div>
+
+<div class="slider-row">
+                <label>DPI <span id="dpiValue">300</span></label>
+                <input type="range" id="dpiSlider" min="72" max="600" value="300" step="72">
+            </div>
+
+           <details class="vcard-toggle" open>
+              <summary>📇 Carte de visite (vCard)</summary>
+              <div class="vcard-fields open" style="display:block;">
+                  <div class="field">
+                      <label>Nom complet</label>
+                      <input type="text" id="vcardName" placeholder="Jean Dupont" value="Jean Dupont">
+                  </div>
+                  <div class="field">
+                      <label>Organisation</label>
+                      <input type="text" id="vcardOrg" placeholder="DataSWCA" value="DataSWCA">
+                  </div>
+                  <div class="field">
+                      <label>Titre</label>
+                      <input type="text" id="vcardTitle" placeholder="Data Scientist" value="Data Scientist">
+                  </div>
+                  <div class="field">
+                      <label>Téléphone</label>
+                      <input type="tel" id="vcardPhone" placeholder="+33 6 12 34 56 78" value="+33 6 12 34 56 78">
+                  </div>
+                  <div class="field">
+                      <label>Email</label>
+                      <input type="email" id="vcardEmail" placeholder="jean@data-swca.fr" value="jean@data-swca.fr">
+                  </div>
+                  <div class="field">
+                      <label>Site web</label>
+                      <input type="text" id="vcardUrl" placeholder="https://www.data-swca.fr"
+  value="https://www.data-swca.fr">
+                  </div>
+                  <div class="field">
+                      <label>Adresse</label>
+                      <textarea id="vcardAddress" placeholder="Paris, France">Paris, France</textarea>
+                  </div>
+              </div>
+          </details>
+
+          <div class="btn-row">
+              <button class="btn btn-primary" id="generateBtn">🎨 Générer</button>
+              <button class="btn btn-secondary" id="downloadBtn">⬇ Télécharger</button>
+          </div>
+      </div>
+
+      <!-- PANEL DROIT : Résultat -->
+      <div class="panel">
+          <h2>🖼️ Résultat</h2>
+          <div id="qrcodeDiv">
+              <p class="placeholder-text">Appuyez sur <strong>Générer</strong></p>
+          </div>
+      </div>
+  </div>
+
+  <script>
+      // ─── SVG LOGO INTEGRÉ ───────────────────────────────────────
+      // Le chemin SVG est proprement enveloppé dans un élément SVG valide
+      // et converti en DataURL pour être utilisé comme image dans Canvas.
+
+      const SVG_LOGO = `
+      <svg xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 800 800"
+           width="800" height="800">
+          <defs>
+              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#e94560"/>
+                  <stop offset="100%" style="stop-color:#0f3460"/>
+              </linearGradient>
+          </defs>
+          <path d="M 6.6861,-0.40521
+              q 8.1043,0 8.1043,7.29388
+              0,7.69911 -8.1043,7.69911
+              -2.2287,0 -6.8887,-0.60783
+              -4.4574,-0.81043 -6.686,-0.81043
+              -2.43134,0 -3.03917,1.21565
+              -0.60782,1.01304 -0.60782,5.0652
+              v 40.7242
+              q 0,13.98 0.40521,16.4113
+              1.62087,11.1434 8.50958,11.1434
+              9.1173,0 9.1173,-21.2738
+              v -2.0261
+              q 0,-6.6861 0.6078,-8.5096
+              1.2157,-4.65994 5.8757,-4.65994
+              6.8886,0 6.8886,12.15644
+              0,4.4574 -0.8104,12.9669
+              -2.4313,25.9339 -22.6921,25.9339
+              -15.8034,0 -19.85556,-14.3852
+              -1.82348,-6.4835 -1.82348,-21.2738
+              v -48.22074
+              q 0,-4.45738 -2.43129,-4.45738
+              -0.20261,0 -2.22869,0.40522
+              -0.20261,0 -1.01304,0
+              -0.81043,0.20261 -1.21565,0.20261
+              -6.07824,0 -6.07824,-7.69911
+              0,-7.09128 6.07824,-7.09128
+              0.81043,0 2.22869,0.20261
+              1.41826,0.20261 2.22869,0.20261
+              2.02608,0 2.22869,-3.03912
+              z
+              m 85.09534,38.90074
+              v 12.96691
+              l 0.2026,10.73823
+              v 8.7121
+              q 0,13.1696 0.6078,16.2087
+              0.8105,2.8365 4.0522,2.8365
+              h 1.8235
+              q 0.8104,-0.2026 2.2287,-0.2026
+              5.4704,0 5.4704,6.8887
+              0,6.8886 -6.4835,6.8886
+              -2.6339,0 -7.9017,-0.8104
+              -5.2678,-0.8104 -7.9017,-0.8104
+              -2.6339,0 -7.2939,0.8104
+              -4.4574,0.8104 -6.4834,0.8104
+              -6.4835,0 -6.4835,-6.8886
+              0,-6.8887 5.673,-6.8887
+              1.2157,0 2.2287,0.2026
+              h 1.8235
+              q 3.2417,0 3.8495,-2.8365
+              0.8105,-3.0391 0.8105,-16.2087
+              v -23.29988
+              q 0,-1.21565 -0.2026,-5.87563
+              -0.2026,-4.8626 -0.2026,-8.71215
+              -0.2027,-11.14344 -0.2027,-10.53562
+              0,-6.88867 -4.8625,-6.88867
+              h -1.2157
+              q -0.2026,0 -1.013,0
+              -0.6079,0.20261 -1.0131,0.20261
+              -5.8756,0 -5.8756,-6.48346
+              0,-2.83651 1.8235,-5.0652
+              2.026,-2.22868 4.66,-2.22868
+              0.6078,0 4.6599,1.01304
+              2.4313,0.60782 4.2548,0.60782
+              1.8235,0 5.2678,-0.60782
+              3.4443,-0.81044 5.0652,-0.81044
+              3.2417,0 3.2417,4.8626
+              v 2.43129
+              q 0,0.40522 0,2.83651
+              -0.2026,2.83652 -0.2026,5.26781
+              z
+              m -8.3069,-44.37116
+              q -4.0522,0 -6.8887,-3.44433
+              -2.6339,-3.44434 -2.6339,-8.71215
+              0,-4.65998 3.0391,-8.30692
+              3.0392,-3.84956 6.8887,-3.84956
+              4.0522,0 6.8887,3.64695
+              3.0391,3.44433 3.0391,8.30693
+              0,5.0652 -3.0391,8.71214
+              -3.0391,3.64694 -7.2939,3.64694
+              z
+              m 68.4813,111.0292
+              q -16.6138,0 -26.339,-13.98
+              -9.7252,-14.1825 -9.7252,-38.09027
+              0,-23.90774 9.7252,-38.0903
+              9.7252,-14.18256 26.339,-14.18256
+              16.6139,0 26.3391,14.18256
+              9.7252,14.18256 9.7252,38.0903
+              0,23.90777 -9.7252,38.09027
+              -9.7252,13.98 -26.3391,13.98
+              z
+              m 0,-90.7684
+              q -9.9277,0 -15.8034,10.73823
+              -5.8756,10.53561 -5.8756,27.9599
+              0,17.42427 5.8756,27.95987
+              5.8757,10.5357 15.8034,10.5357
+              9.9278,0 15.8035,-10.5357
+              6.0782,-10.5356 6.0782,-27.95987
+              0,-17.42429 -6.0782,-27.9599
+              -5.8757,-10.73823 -15.8035,-10.73823
+              z
+              m 76.9912,-3.03912
+              q 8.7121,-10.53561 23.7051,-10.53561
+              16.8165,0 23.9078,11.54865
+              5.0652,8.30693 5.0652,29.58077
+              v 28.97291
+              q 0,13.1696 0.6078,16.2087
+              0.8104,2.8365 4.0521,2.8365
+              h 1.8235
+              q 1.013,-0.2026 2.2287,-0.2026
+              5.4704,0 5.4704,6.8887
+              0,6.8886 -6.2808,6.8886
+              -2.2287,0 -6.8887,-0.8104
+              -4.4574,-0.8104 -6.8887,-0.8104
+              -2.6339,0 -7.9017,0.8104
+              -5.0652,0.8104 -7.6991,0.8104
+              -6.4835,0 -6.4835,-6.8886
+              0,-2.8366 1.6209,-4.8626
+              1.6209,-2.0261 3.8496,-2.0261
+              1.4182,0 2.4313,0.2026
+              h 1.8234
+              q 3.0392,0 3.4444,-2.6339
+              0.6078,-2.8365 1.013,-16.4113
+              l 0.2026,-8.7121
+              v -19.85559
+              q 0,-15.39821 -4.2548,-22.08427
+              -4.2547,-6.68607 -13.7773,-6.68607
+              -9.7252,0 -15.3982,8.91475
+              -5.673,8.71215 -5.673,23.70514
+              v 24.71814
+              q 0,13.1696 0.6078,16.2087
+              0.8104,2.8365 4.0522,2.8365
+              h 1.8234
+              q 0.8105,-0.2026 2.2287,-0.2026
+              5.4704,0 5.4704,6.8887
+              0,6.8886 -6.2808,6.8886
+              -1.6209,0 -7.6991,-1.2156
+              -4.0522,-0.4052 -7.4965,-0.4052
+              -4.2548,0 -7.6991,0.6078
+              -5.673,1.013 -6.6861,1.013
+              -6.2808,0 -6.2808,-6.8886
+              0,-6.8887 5.673,-6.8887
+              1.2156,0 2.2287,0.2026
+              h 1.8235
+              q 3.2417,0 3.8495,-2.8365
+              0.8104,-3.0391 0.8104,-16.2087
+              v -35.65897
+              q 0,-12.76431 -1.013,-16.20864
+              -0.8104,-3.44434 -4.0522,-3.44434
+              -0.2026,0 -0.4052,0
+              -0.2026,0.20261 -0.4052,0.20261
+              -0.8104,0 -1.8235,0
+              -1.2156,0.20261 -1.4182,0.20261
+              -5.4704,0 -5.4704,-6.48346
+              0,-3.03912 1.8234,-5.0652
+              1.8235,-2.22869 4.4574,-2.22869
+              1.6209,0 4.8626,0.60783
+              3.4443,0.60782 5.2678,0.60782
+              3.0391,0 4.4574,-0.40521
+              2.8365,-0.81044 4.0521,-0.81044
+              3.2418,0 3.2418,4.65999
+              z"
+              fill="url(#logoGrad)"
+              stroke="#0f3460"
+              stroke-width="1"
+          />
+      </svg>`;
+
+      // ─── ELEMENTS DOM ───────────────────────────────────────────
+const sizeSlider      = document.getElementById('sizeSlider');
+    const sizeValue       = document.getElementById('sizeValue');
+    const roundnessSlider = document.getElementById('roundnessSlider');
+    const roundnessValue  = document.getElementById('roundnessValue');
+    const dotStyleSelect  = document.getElementById('dotStyleSelect');
+    const dotColorInput   = document.getElementById('dotColorInput');
+    const cornerColorInput = document.getElementById('cornerColorInput');
+    const bgColorInput      = document.getElementById('bgColorInput');
+    const generateBtn       = document.getElementById('generateBtn');
+    const downloadBtn     = document.getElementById('downloadBtn');
+    const qrcodeDiv       = document.getElementById('qrcodeDiv');
+    const vcardName       = document.getElementById('vcardName');
+    const vcardOrg        = document.getElementById('vcardOrg');
+    const vcardTitle      = document.getElementById('vcardTitle');
+    const vcardPhone      = document.getElementById('vcardPhone');
+    const vcardEmail      = document.getElementById('vcardEmail');
+    const vcardUrl        = document.getElementById('vcardUrl');
+    const vcardAddress    = document.getElementById('vcardAddress');
+    const logoSizeSlider   = document.getElementById('logoSizeSlider');
+    const logoSizeValue    = document.getElementById('logoSizeValue');
+    const dpiSlider        = document.getElementById('dpiSlider');
+    const dpiValue         = document.getElementById('dpiValue');
+
+      let currentCanvas = null;
+
+// ─── CHARGEMENT DU LOGO ─────────────────────────────────
+async function loadLogo() {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const logoSVG = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+            <circle cx="50" cy="50" r="48" fill="#e94560" stroke="#0f3460" stroke-width="2"/>
+            <circle cx="50" cy="50" r="38" fill="#1a1a2e"/>
+            <text x="50" y="72" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="#ffffff" text-anchor="middle">D</text>
+            <circle cx="50" cy="25" r="4" fill="#e94560"/>
+            <circle cx="50" cy="75" r="4" fill="#e94560"/>
+            <polygon points="50,30 53,38 62,38 55,43 57,52 50,47 43,52 45,43 38,38 47,38" fill="#e94560" transform="translate(0, 20)"/>
+        </svg>`;
+        
+        const handleLoad = () => resolve(img);
+        const handleError = () => {
+            if (img.src.startsWith('file')) {
+                const encoded = encodeURIComponent(logoSVG);
+                img.src = 'data:image/svg+xml,' + encoded;
+            } else {
+                reject(new Error('Logo failed to load'));
+            }
+        };
+        
+        img.crossOrigin = "Anonymous";
+        img.onload = handleLoad;
+        img.onerror = handleError;
+        img.src = 'logo.png';
+    });
+}
+
+      // ─── UTILITAIRES DE DESSIN ──────────────────────────────────
+      function drawRoundedRect(ctx, x, y, w, h, radius) {
+          const r = Math.min(radius, w / 2, h / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y,     x + w, y + h, r);
+          ctx.arcTo(x + w, y + h, x,     y + h, r);
+          ctx.arcTo(x,     y + h, x,     y,     r);
+          ctx.arcTo(x,     y,     x + w, y,     r);
+          ctx.closePath();
+          ctx.fill();
+      }
+
+      function drawCircle(ctx, x, y, w, h) {
+          const cx = x + w / 2;
+          const cy = y + h / 2;
+          const r  = Math.min(w, h) / 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 0.88, 0, 2 * Math.PI);
+          ctx.fill();
+      }
+
+        function drawCornerSquare(ctx, x, y, size, color, roundness, bgColor) {
+            // Outer square
+            ctx.fillStyle = color;
+            drawRoundedRect(ctx, x, y, size, size, roundness);
+
+            // Inner cutout
+            const innerSize = size * 0.52;
+            const ix = x + (size - innerSize) / 2;
+            const iy = y + (size - innerSize) / 2;
+            ctx.fillStyle = bgColor;
+            drawRoundedRect(ctx, ix, iy, innerSize, innerSize, roundness * 1.1);
+
+            // Center dot
+            const dotSize = size * 0.22;
+            const dx = x + (size - dotSize) / 2;
+            const dy = y + (size - dotSize) / 2;
+            ctx.fillStyle = color;
+            drawRoundedRect(ctx, dx, dy, dotSize, dotSize, roundness * 0.6);
+        }
+
+        /**
+         * Wrapper around QRCode.toCanvas that returns a Promise.
+         * The CDN version of `qrcode` (v1.5.4) uses a callback‑style API.
+         * By encapsulating it in a Promise we can `await` it safely.
+         * @param {HTMLCanvasElement} canvas – Destination canvas.
+         * @param {string} data – Text/vCard to encode.
+         * @param {object} options – QRCode options (size, margin, …).
+         * @returns {Promise<void>} resolves when drawing finishes.
+         */
+        function qrToCanvas(canvas, data, options) {
+            return new Promise((resolve, reject) => {
+                if (!window.QRCode || typeof QRCode.toCanvas !== 'function') {
+                    reject(new Error('QRCode library not loaded'));
+                    return;
+                }
+                QRCode.toCanvas(canvas, data, options, err => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        }
+
+      // ─── CONSTRUCTION vCard ─────────────────────────────────────
+      function buildVCard() {
+          const lines = [
+              'BEGIN:VCARD',
+              'VERSION:3.0',
+              `FN:${vcardName.value || ''}`,
+              `ORG:${vcardOrg.value || ''}`,
+              `TITLE:${vcardTitle.value || ''}`,
+              `TEL:${vcardPhone.value || ''}`,
+              `EMAIL:${vcardEmail.value || ''}`,
+              `URL:${vcardUrl.value || ''}`,
+              `ADR:;;${vcardAddress.value || ''};;;;`,
+              'END:VCARD'
+          ];
+          return lines.join('\n');
+      }
+
+      // ─── GENERATION QR CODE ─────────────────────────────────────
+      async function generateQRCode() {
+          const size        = parseInt(sizeSlider.value);
+          const dotColor    = dotColorInput.value;
+          const cornerColor = cornerColorInput.value;
+          const bgColor     = bgColorInput.value;
+          const roundness   = parseInt(roundnessSlider.value);
+          const dotStyle    = dotStyleSelect.value;
+
+          qrcodeDiv.innerHTML = '<p class="placeholder-text">⏳ Génération…</p>';
+          currentCanvas = null;
+
+          try {
+              // 1. Générer le QR brut
+              const tempCanvas = document.createElement('canvas');
+              tempCanvas.width  = size;
+              tempCanvas.height = size;
+
+await qrToCanvas(tempCanvas, buildVCard(), {
+                    width: size,
+                    margin: 1,
+                    color: { dark: '#000000', light: '#ffffff' },
+                    errorCorrectionLevel: 'H'
+                });
+
+              // 2. Lire les modules
+              const tempCtx   = tempCanvas.getContext('2d');
+              const imageData = tempCtx.getImageData(0, 0, size, size);
+              const data      = imageData.data;
+
+              const moduleSize = size / 25;
+              const blockSize  = Math.max(1, Math.floor(moduleSize));
+              const cols       = Math.floor(size / blockSize);
+              const rows       = Math.floor(size / blockSize);
+
+              // 3. Extraire la grille de modules sombres
+              const darkBlocks = [];
+              for (let row = 0; row < rows; row++) {
+                  darkBlocks[row] = [];
+                  for (let col = 0; col < cols; col++) {
+                      const cx = col * blockSize + blockSize / 2;
+                      const cy = row * blockSize + blockSize / 2;
+                      const idx = (Math.floor(cy) * size + Math.floor(cx)) * 4;
+                      darkBlocks[row][col] = (data[idx] < 128);
+                  }
+              }
+
+              // 4. Dessiner le QR personnalisé
+              const finalCanvas = document.createElement('canvas');
+              finalCanvas.width  = size;
+              finalCanvas.height = size;
+              const ctx = finalCanvas.getContext('2d');
+
+              // Fond
+              ctx.fillStyle = bgColor;
+              ctx.fillRect(0, 0, size, size);
+
+              const cornerSize = Math.floor(7 * blockSize);
+
+              // Three finder patterns
+              drawCornerSquare(ctx, 0, 0, cornerSize, cornerColor, roundness, bgColor);
+              drawCornerSquare(ctx, size - cornerSize, 0, cornerSize, cornerColor, roundness, bgColor);
+              drawCornerSquare(ctx, 0, size - cornerSize, cornerSize, cornerColor, roundness, bgColor);
+
+              // Data modules
+              for (let row = 0; row < rows; row++) {
+                  for (let col = 0; col < cols; col++) {
+                      const inCorner =
+                          (row < 8 && col < 8) ||
+                          (row < 8 && col > cols - 9) ||
+                          (row > rows - 9 && col < 8);
+
+                      if (!inCorner && darkBlocks[row][col]) {
+                          const x = col * blockSize;
+                          const y = row * blockSize;
+
+                          ctx.fillStyle = dotColor;
+
+                          if (dotStyle === 'rounded') {
+                              drawRoundedRect(ctx, x, y, blockSize, blockSize, blockSize * 0.38);
+                          } else if (dotStyle === 'soft') {
+                              drawCircle(ctx, x, y, blockSize, blockSize);
+                          } else {
+                              ctx.fillRect(x, y, blockSize, blockSize);
+                          }
+                      }
+                  }
+              }
+
+// 5. Logo centré
+               try {
+                   const logoImg = await loadLogo();
+                   const logoSize = size * parseFloat(logoSizeSlider.value);
+                   const lx = (size - logoSize) / 2;
+                   const ly = (size - logoSize) / 2;
+
+                   ctx.save();
+                   ctx.shadowBlur = 8;
+                   ctx.shadowColor = 'rgba(0,0,0,0.25)';
+                   ctx.beginPath();
+                   ctx.arc(size / 2, size / 2, logoSize / 2 + 4, 0, 2 * Math.PI);
+                   ctx.fillStyle = '#fff';
+                   ctx.fill();
+                   ctx.lineWidth = Math.max(2, logoSize * 0.03);
+                   ctx.strokeStyle = '#000';
+                   ctx.stroke();
+                   ctx.restore();
+
+                   ctx.save();
+                   ctx.shadowBlur = 6;
+                   ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                   ctx.drawImage(logoImg, lx, ly, logoSize, logoSize);
+                   ctx.restore();
+
+                   console.log('Logo intégré');
+               } catch (err) {
+                   console.warn('Logo erreur:', err);
+               }
+
+              // 6. Afficher
+              qrcodeDiv.innerHTML = '';
+              qrcodeDiv.appendChild(finalCanvas);
+              currentCanvas = finalCanvas;
+
+          } catch (err) {
+              console.error(err);
+              qrcodeDiv.innerHTML = `<p class="placeholder-text">❌ Erreur : ${err.message}</p>`;
+          }
+      }
+
+      // ─── TELECHARGEMENT ─────────────────────────────────────────
+function downloadQRCode() {
+            if (!currentCanvas) {
+                alert('Générez d\'abord le QR Code.');
+                return;
+            }
+            const link = document.createElement('a');
+            const now  = new Date();
+            const ts   = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            link.download = `QR_Code_DataSWCA_${ts}.png`;
+            // Compute export scale based on DPI (default CSS DPI = 72)
+            const dpi = parseInt(dpiSlider.value);
+            const scale = dpi / 72;
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = Math.round(currentCanvas.width * scale);
+            exportCanvas.height = Math.round(currentCanvas.height * scale);
+            const exportCtx = exportCanvas.getContext('2d');
+            // Preserve image quality when scaling up
+            exportCtx.imageSmoothingEnabled = false;
+            exportCtx.drawImage(currentCanvas, 0, 0, exportCanvas.width, exportCanvas.height);
+            link.href = exportCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // ─── EVENT LISTENERS ────────────────────────────────────────
+        // Size & roundness value display
+        sizeSlider.addEventListener('input', () => {
+            sizeValue.textContent = sizeSlider.value;
+        });
+        roundnessSlider.addEventListener('input', () => {
+            roundnessValue.textContent = roundnessSlider.value;
+        });
+        // Logo size value display
+        logoSizeSlider.addEventListener('input', () => {
+            logoSizeValue.textContent = logoSizeSlider.value;
+        });
+        // DPI value display
+        dpiSlider.addEventListener('input', () => {
+            dpiValue.textContent = dpiSlider.value;
+        });
+
+        // Buttons
+        generateBtn.addEventListener('click', generateQRCode);
+        downloadBtn.addEventListener('click', downloadQRCode);
+
+        // Live updates on style change (including DPI)
+        [dotColorInput, cornerColorInput, bgColorInput,
+        roundnessSlider, dotStyleSelect, sizeSlider, dpiSlider, logoSizeSlider].forEach(el => {
+            el.addEventListener('change', generateQRCode);
+        });
+
+        // Live updates on vCard change (debounced)
+        [vcardName, vcardOrg, vcardTitle, vcardPhone, vcardEmail, vcardUrl, vcardAddress].forEach(el => {
+            el.addEventListener('input', () => {
+                clearTimeout(el._debounce);
+                el._debounce = setTimeout(generateQRCode, 600);
+            });
+        });
+
+        // Génération initiale
+        setTimeout(generateQRCode, 200);
+  </script>
+
+  </body>
+  </html>
